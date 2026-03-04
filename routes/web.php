@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\TesteOracleController;
+use App\Http\Controllers\RelatorioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +17,5 @@ use App\Http\Controllers\TesteOracleController;
 
 
 
-Route::get('/oracle', [TesteOracleController::class, 'index']);
-
+Route::get('/consumo', [RelatorioController::class, 'consumo']);
 
