@@ -1,0 +1,213 @@
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6fb;
+    margin: 0;
+    padding: 30px;
+    color: #333;
+}
+
+.page {
+    max-width: 1400px;
+    margin: auto;
+}
+
+.titulo {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2f5597;
+}
+
+.container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.filtros {
+    width: 260px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.filtro-titulo {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.filtro-box {
+    margin-bottom: 16px;
+}
+
+.filtro-box b {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #444;
+}
+
+.filtro-box label {
+    display: block;
+    font-size: 13px;
+    margin: 4px 0;
+    cursor: pointer;
+}
+
+.scroll {
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.filtro-botoes {
+    margin-top: 16px;
+}
+
+.btn-filtrar {
+    width: 100%;
+    padding: 10px;
+    background: #2f5597;
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-filtrar:hover {
+    background: #1f3f73;
+}
+
+.btn-limpar {
+    display: block;
+    margin-top: 8px;
+    text-align: center;
+    padding: 9px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.btn-limpar:hover {
+    background: #c0392b;
+}
+
+.conteudo {
+    flex: 1;
+}
+
+.grafico-box {
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+.grafico-wrapper {
+    height: 280px;
+    position: relative;
+}
+
+.tabela-box {
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+thead th {
+    background: #2f5597;
+    color: white;
+    padding: 10px;
+    font-size: 13px;
+    text-align: left;
+}
+
+tbody td {
+    padding: 9px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+tbody tr:nth-child(even) {
+    background: #f8f9fc;
+}
+
+tbody tr:hover {
+    background: #eef3ff;
+}
+
+.valor {
+    text-align: right;
+    font-weight: 600;
+}
+
+.paginacao {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+/* PAGINAÇÃO */
+
+.paginacao{
+margin-top:20px;
+display:flex;
+justify-content:center;
+}
+
+.pagination{
+display:flex;
+gap:6px;
+list-style:none;
+padding:0;
+margin:0;
+}
+
+.pagination li a,
+.pagination li span{
+
+display:block;
+
+padding:8px 12px;
+
+background:#f5f7ff;
+
+border-radius:6px;
+
+text-decoration:none;
+
+font-size:13px;
+
+font-weight:500;
+
+color:#2f5597;
+
+transition:0.2s;
+
+}
+
+.pagination li a:hover{
+background:#dfe6ff;
+}
+
+.pagination li.active span{
+background:#2f5597;
+color:white;
+}
+
+.pagination li.disabled span{
+opacity:0.4;
+}

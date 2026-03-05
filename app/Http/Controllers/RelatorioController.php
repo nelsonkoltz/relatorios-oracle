@@ -2,75 +2,100 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 class RelatorioController extends Controller
 {
-    public function consumo()
-    {
-
-        $dados = DB::connection('oracle')->select("
-            SELECT y.ds_setor,
-                   x.*
-            FROM VW_PI_CCSTC02_FECH_ITEM x
-            LEFT JOIN tcli_deposito_setor d 
-                   ON d.cd_deposito = x.DEPOSITO
-            LEFT JOIN vw_f7_setor_custo y 
-                   ON y.cd_setor_custo = d.cd_setor_custo
-            WHERE FILIAL IN (1,2)
-            AND ANO_MES >= 202310
-            FETCH FIRST 100 ROWS ONLY
-        ");
-
-        return view('relatorios.consumo', compact('dados'));
-
-    }
 
     public function compras(Request $request)
     {
-        // Filtros (opcionais)
-        $filiais = $request->input('filiais', [1, 2]);
-        $anoMesMin = $request->input('ano_mes_min', 202310);
 
-        // Query agregada para gráfico (SUM por ANO_MES)
-        $sql = "
-            SELECT 
-                x.ANO_MES,
-                SUM(x.VALOR_COMPRA) AS VALOR_COMPRA
-            FROM VW_PI_CCSTC02_FECH_ITEM x
-            LEFT JOIN tcli_deposito_setor d 
-                   ON d.cd_deposito = x.DEPOSITO
-            LEFT JOIN vw_f7_setor_custo y 
-                   ON y.cd_setor_custo = d.cd_setor_custo
-            WHERE x.FILIAL IN (" . implode(',', $filiais) . ")
-              AND x.ANO_MES >= :ano_mes_min
-            GROUP BY x.ANO_MES
-            ORDER BY x.ANO_MES
-        ";
+        $tipo_item = Arr::wrap($request->tipo_item);
+        $filial = Arr::wrap($request->filial);
+        $setor = Arr::wrap($request->setor);
+        $grupo = Arr::wrap($request->grupo);
+        $subgrupo = Arr::wrap($request->subgrupo);
+        $deposito = Arr::wrap($request->deposito);
 
-        $dadosGrafico = DB::connection('oracle')->select($sql, [
-            'ano_mes_min' => $anoMesMin
-        ]);
+        /*
+        =====================
+        BASE QUERY
+        =====================
+        */
 
-        // Tabela de apoio (ex.: top itens comprados)
-        $sqlTop = "
-            SELECT 
-                x.DESCR_ITEM,
-                SUM(x.VALOR_COMPRA) AS TOTAL_COMPRA
-            FROM VW_PI_CCSTC02_FECH_ITEM x
-            WHERE x.FILIAL IN (" . implode(',', $filiais) . ")
-              AND x.ANO_MES >= :ano_mes_min
-            GROUP BY x.DESCR_ITEM
-            ORDER BY TOTAL_COMPRA DESC
-            FETCH FIRST 10 ROWS ONLY
-        ";
+        $base = DB::connection('oracle')
+            ->table('VW_PI_CCSTC02_FECH_ITEM as x')
+            ->leftJoin('tcli_deposito_setor as d', 'd.cd_deposito', '=', 'x.DEPOSITO')
+            ->leftJoin('vw_f7_setor_custo as y', 'y.cd_setor_custo', '=', 'd.cd_setor_custo')
+            ->whereRaw("x.ANO_MES >= TO_CHAR(ADD_MONTHS(SYSDATE,-12),'YYYYMM')");
 
-        $topItens = DB::connection('oracle')->select($sqlTop, [
-            'ano_mes_min' => $anoMesMin
-        ]);
+        /*
+        =====================
+        FILTROS
+        =====================
+        */
 
-        return view('relatorios.compras', compact('dadosGrafico', 'topItens', 'filiais', 'anoMesMin'));
+        if (!empty($tipo_item)) {
+            $base->whereIn('x.TIPO_ITEM', $tipo_item);
+        }
+
+        if (!empty($filial)) {
+            $base->whereIn('x.FILIAL', $filial);
+        }
+
+        if (!empty($setor)) {
+            $base->whereIn('y.DS_SETOR', $setor);
+        }
+
+        if (!empty($grupo)) {
+            $base->whereIn('x.DESCR_GRUPO_INSUMO', $grupo);
+        }
+
+        if (!empty($subgrupo)) {
+            $base->whereIn('x.DESCR_SUBGRUPO_INSUMO', $subgrupo);
+        }
+
+        if (!empty($deposito)) {
+            $base->whereIn('x.DEPOSITO', $deposito);
+        }
+
+        /*
+        =====================
+        GRAFICO
+        =====================
+        */
+
+        $grafico = (clone $base)
+            ->select(
+                'x.ANO_MES',
+                DB::raw('SUM(x.VALOR_COMPRA) VALOR_COMPRA')
+            )
+            ->groupBy('x.ANO_MES')
+            ->orderBy('x.ANO_MES')
+            ->get();
+
+
+        /*
+        =====================
+        TOP ITENS PAGINADO
+        =====================
+        */
+
+        $top = (clone $base)
+            ->select(
+                'x.DESCR_ITEM',
+                DB::raw('SUM(x.VALOR_COMPRA) TOTAL')
+            )
+            ->groupBy('x.DESCR_ITEM')
+            ->orderByDesc('TOTAL')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('relatorios.compras', compact(
+            'grafico',
+            'top'
+        ));
     }
 }
