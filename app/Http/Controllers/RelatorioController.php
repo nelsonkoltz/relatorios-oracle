@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Arr;
 use App\Providers\RelatorioService;
 
@@ -52,13 +53,16 @@ class RelatorioController extends Controller
         });
 
         if (isset($filtros['item'])) {
+
             $query->when($filtros['item'], function ($q) use ($filtros) {
                 $q->whereIn('x.DESCR_ITEM', $filtros['item']);
             });
+
         }
 
         return $query;
     }
+
 
 
     /*
@@ -82,59 +86,79 @@ class RelatorioController extends Controller
         ];
 
 
-        /*
-        =========================
-        BASE QUERY
-        =========================
-        */
-
-        $base = $this->relatorio->baseQuery();
-
-        $this->aplicarFiltros($base, $filtrosSelecionados);
+        $cacheKey = 'compras_' . md5(json_encode($filtrosSelecionados));
 
 
-        /*
-        =========================
-        GRAFICO
-        =========================
-        */
+        $dados = Cache::remember($cacheKey, 300, function () use ($filtrosSelecionados) {
 
-        $grafico = (clone $base)
+            $base = $this->relatorio->baseQuery();
 
-            ->select(
-                'x.ANO_MES',
-                DB::raw('SUM(x.VALOR_COMPRA) as VALOR_COMPRA')
-            )
+            /*
+            LIMITE 12 MESES
+            */
+            $base->whereRaw("x.ANO_MES >= TO_CHAR(ADD_MONTHS(SYSDATE,-12),'YYYYMM')");
 
-            ->groupBy('x.ANO_MES')
-            ->orderBy('x.ANO_MES')
-            ->get();
+            $this->aplicarFiltros($base, $filtrosSelecionados);
 
 
-        /*
-        =========================
-        TOP ITENS
-        =========================
-        */
+            $grafico = (clone $base)
 
-        $top = (clone $base)
+                ->select(
+                    'x.ANO_MES',
+                    DB::raw('SUM(x.VALOR_COMPRA) as VALOR_COMPRA')
+                )
 
-            ->select(
-                'x.DESCR_ITEM',
-                DB::raw('SUM(x.VALOR_COMPRA) as TOTAL')
-            )
+                ->groupBy('x.ANO_MES')
+                ->orderBy('x.ANO_MES')
+                ->get();
 
-            ->groupBy('x.DESCR_ITEM')
-            ->orderByDesc('TOTAL')
-            ->paginate(10)
-            ->withQueryString();
+
+            $top = (clone $base)
+
+                ->select(
+                    'x.DESCR_ITEM',
+                    DB::raw('SUM(x.VALOR_COMPRA) as TOTAL')
+                )
+
+                ->groupBy('x.DESCR_ITEM')
+                ->orderByDesc('TOTAL')
+                ->get();
+
+
+            return [
+                'grafico' => $grafico,
+                'top' => $top
+            ];
+        });
 
 
         /*
-        =========================
-        FILTROS DINAMICOS
-        =========================
+        PAGINAÇÃO MANUAL
         */
+
+        $pagina = $request->get('page', 1);
+
+        $porPagina = 10;
+
+        $top = collect($dados['top']);
+
+        $topPaginado = new \Illuminate\Pagination\LengthAwarePaginator(
+
+            $top->forPage($pagina, $porPagina),
+
+            $top->count(),
+
+            $porPagina,
+
+            $pagina,
+
+            [
+                'path' => request()->url(),
+                'query' => request()->query()
+            ]
+
+        );
+
 
         $filtros = $this->relatorio->filtros();
 
@@ -142,16 +166,17 @@ class RelatorioController extends Controller
         return view('relatorios.compras', array_merge(
 
             $filtros,
-
             $filtrosSelecionados,
 
-            compact(
-                'grafico',
-                'top'
-            )
+            [
+                'grafico' => $dados['grafico'],
+                'top' => $topPaginado
+            ]
 
         ));
+
     }
+
 
 
 
@@ -177,73 +202,82 @@ class RelatorioController extends Controller
         ];
 
 
-        /*
-        =========================
-        BASE QUERY
-        =========================
-        */
-
-        $base = $this->relatorio->baseQuery();
-
-        $this->aplicarFiltros($base, $filtrosSelecionados);
+        $cacheKey = 'estoque_' . md5(json_encode($filtrosSelecionados));
 
 
-        /*
-        =========================
-        GRAFICO
-        =========================
-        */
+        $dados = Cache::remember($cacheKey, 300, function () use ($filtrosSelecionados) {
 
-        $grafico = (clone $base)
+            $base = $this->relatorio->baseQuery();
 
-            ->select(
-                'x.ANO_MES',
-                DB::raw('SUM(x.VALOR_ATUAL) as VALOR')
-            )
+            /*
+            LIMITE 12 MESES
+            */
+            $base->whereRaw("x.ANO_MES >= TO_CHAR(ADD_MONTHS(SYSDATE,-12),'YYYYMM')");
 
-            ->groupBy('x.ANO_MES')
-            ->orderBy('x.ANO_MES')
-            ->get();
+            $this->aplicarFiltros($base, $filtrosSelecionados);
 
 
-        /*
-        =========================
-        AGRUPAMENTO
-        =========================
-        */
+            $grafico = (clone $base)
 
-        $agrupado = (clone $base)
+                ->select(
+                    'x.ANO_MES',
+                    DB::raw('SUM(x.VALOR_ATUAL) as VALOR')
+                )
 
-            ->select(
-                'x.DESCR_ITEM',
-                'x.ANO_MES',
-                DB::raw('SUM(x.VALOR_ATUAL) as TOTAL')
-            )
-
-            ->groupBy(
-                'x.DESCR_ITEM',
-                'x.ANO_MES'
-            );
+                ->groupBy('x.ANO_MES')
+                ->orderBy('x.ANO_MES')
+                ->get();
 
 
-        $tabela = DB::connection('oracle')
+            $agrupado = (clone $base)
 
-            ->query()
+                ->select(
+                    'x.DESCR_ITEM',
+                    'x.ANO_MES',
+                    DB::raw('SUM(x.VALOR_ATUAL) as TOTAL')
+                )
 
-            ->fromSub($agrupado, 'dados')
+                ->groupBy(
+                    'x.DESCR_ITEM',
+                    'x.ANO_MES'
+                )
+                ->get();
 
-            ->orderBy('descr_item')
 
-            ->paginate(20)
-
-            ->withQueryString();
+            return [
+                'grafico' => $grafico,
+                'tabela' => $agrupado
+            ];
+        });
 
 
         /*
-        =========================
-        FILTROS DINAMICOS
-        =========================
+        PAGINAÇÃO
         */
+
+        $pagina = $request->get('page', 1);
+
+        $porPagina = 20;
+
+        $tabela = collect($dados['tabela']);
+
+        $tabelaPaginada = new \Illuminate\Pagination\LengthAwarePaginator(
+
+            $tabela->forPage($pagina, $porPagina),
+
+            $tabela->count(),
+
+            $porPagina,
+
+            $pagina,
+
+            [
+                'path' => request()->url(),
+                'query' => request()->query()
+            ]
+
+        );
+
 
         $filtros = $this->relatorio->filtros();
 
@@ -251,14 +285,15 @@ class RelatorioController extends Controller
         return view('relatorios.estoque_final', array_merge(
 
             $filtros,
-
             $filtrosSelecionados,
 
-            compact(
-                'grafico',
-                'tabela'
-            )
+            [
+                'grafico' => $dados['grafico'],
+                'tabela' => $tabelaPaginada
+            ]
 
         ));
+
     }
+
 }
