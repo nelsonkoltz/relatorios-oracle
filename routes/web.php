@@ -6,3 +6,4 @@ use App\Http\Controllers\RelatorioController;
 
 Route::get('/consumo', [RelatorioController::class, 'consumo']);
 Route::get('/compras', [RelatorioController::class, 'compras']);
+Route::get('/estoque_final', [RelatorioController::class,'estoqueFinal']);

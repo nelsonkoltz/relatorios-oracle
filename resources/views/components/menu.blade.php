@@ -14,7 +14,7 @@
                 Compras
             </a>
 
-            <a href="{{ url('/estoque-final') }}" class="aba {{ request()->is('estoque-final') ? 'ativa' : '' }}">
+            <a href="{{ url('/estoque_final') }}" class="aba {{ request()->is('estoque_final') ? 'ativa' : '' }}">
                 Posição Estoque Final
             </a>
 
