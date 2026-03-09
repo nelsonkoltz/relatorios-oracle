@@ -1,0 +1,102 @@
+/* CONTAINER DA PÁGINA */
+
+.page {
+    max-width: 1400px;
+    margin: auto;
+}
+
+/* MENU */
+
+.menu-container {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+/* ABAS */
+
+.menu-abas {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ABA */
+
+.aba {
+    padding: 8px 16px;
+    background: #f2f4f8;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+/* HOVER */
+
+.aba:hover {
+    background: #e4e9f5;
+    color: #2f5597;
+}
+
+/* ABA ATIVA */
+
+.aba.ativa {
+    background: #2f5597;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+
+/* ========================= */
+/* RESPONSIVIDADE */
+/* ========================= */
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+    .menu-container {
+        padding: 10px 12px;
+    }
+
+    .aba {
+        padding: 7px 14px;
+        font-size: 12px;
+    }
+
+}
+
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+
+    .menu-abas {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .menu-abas::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .menu-abas::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+
+    .aba {
+        flex: 0 0 auto;
+        font-size: 12px;
+        padding: 7px 12px;
+    }
+
+}

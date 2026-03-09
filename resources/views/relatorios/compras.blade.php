@@ -1,8 +1,8 @@
 <link rel="stylesheet" href="{{ asset('css/compras.css') }}">
 
-<div class="page">
+<x-menu />
 
-    <h2 class="titulo">Relatório de Compras</h2>
+<div class="page">
 
     <div class="container">
 
@@ -10,160 +10,177 @@
 
             <h3 class="filtro-titulo">Filtros</h3>
 
+            {{-- =====================
+            TIPO ITEM
+            ===================== --}}
+
             <div class="filtro-box">
 
                 <b>Tipo Item</b>
 
-                <label>
-                    <input type="checkbox" name="tipo_item[]" value="5" {{ in_array('5', request()->input('tipo_item', [])) ? 'checked' : '' }}>
-                    5
-                </label>
+                @foreach(['5','6','9','10'] as $item)
 
                 <label>
-                    <input type="checkbox" name="tipo_item[]" value="6" {{ in_array('6', request()->input('tipo_item', [])) ? 'checked' : '' }}>
-                    6
+                    <input type="checkbox" name="tipo_item[]" value="{{ $item }}"
+                    {{ in_array($item, $tipo_item ?? []) ? 'checked' : '' }}>
+                    {{ $item }}
                 </label>
 
-                <label>
-                    <input type="checkbox" name="tipo_item[]" value="9" {{ in_array('9', request()->input('tipo_item', [])) ? 'checked' : '' }}>
-                    9
-                </label>
-
-                <label>
-                    <input type="checkbox" name="tipo_item[]" value="10" {{ in_array('10', request()->input('tipo_item', [])) ? 'checked' : '' }}>
-                    10
-                </label>
+                @endforeach
 
             </div>
 
+
+            {{-- =====================
+            FILIAL
+            ===================== --}}
 
             <div class="filtro-box">
 
                 <b>Filial</b>
 
-                <label>
-                    <input type="checkbox" name="filial[]" value="1" {{ in_array('1', request()->input('filial', [])) ? 'checked' : '' }}>
-                    1
-                </label>
+                @foreach(['1','2'] as $f)
 
                 <label>
-                    <input type="checkbox" name="filial[]" value="2" {{ in_array('2', request()->input('filial', [])) ? 'checked' : '' }}>
-                    2
+                    <input type="checkbox" name="filial[]" value="{{ $f }}"
+                    {{ in_array($f, $filial ?? []) ? 'checked' : '' }}>
+                    {{ $f }}
                 </label>
+
+                @endforeach
 
             </div>
 
+
+            {{-- =====================
+            SETOR
+            ===================== --}}
 
             <div class="filtro-box scroll">
 
                 <b>Setor</b>
 
-                <label>
-                    <input type="checkbox" name="setor[]" value="ADMINISTRACAO" {{ in_array('ADMINISTRACAO', request()->input('setor', [])) ? 'checked' : '' }}>
-                    ADMINISTRACAO
-                </label>
+                @foreach([
+                    'ADMINISTRACAO',
+                    'FIACAO CN',
+                    'FIACAO NT',
+                    'MALHARIA',
+                    'TINTURARIA'
+                ] as $s)
 
                 <label>
-                    <input type="checkbox" name="setor[]" value="FIACAO CN" {{ in_array('FIACAO CN', request()->input('setor', [])) ? 'checked' : '' }}>
-                    FIACAO CN
+                    <input type="checkbox" name="setor[]" value="{{ $s }}"
+                    {{ in_array($s, $setor ?? []) ? 'checked' : '' }}>
+                    {{ $s }}
                 </label>
 
-                <label>
-                    <input type="checkbox" name="setor[]" value="FIACAO NT" {{ in_array('FIACAO NT', request()->input('setor', [])) ? 'checked' : '' }}>
-                    FIACAO NT
-                </label>
-
-                <label>
-                    <input type="checkbox" name="setor[]" value="MALHARIA" {{ in_array('MALHARIA', request()->input('setor', [])) ? 'checked' : '' }}>
-                    MALHARIA
-                </label>
-
-                <label>
-                    <input type="checkbox" name="setor[]" value="TINTURARIA" {{ in_array('TINTURARIA', request()->input('setor', [])) ? 'checked' : '' }}>
-                    TINTURARIA
-                </label>
+                @endforeach
 
             </div>
 
+
+            {{-- =====================
+            GRUPO
+            ===================== --}}
 
             <div class="filtro-box scroll">
 
                 <b>Grupo</b>
 
-                <label>
-                    <input type="checkbox" name="grupo[]" value="IMOBILIZADO" {{ in_array('IMOBILIZADO', request()->input('grupo', [])) ? 'checked' : '' }}>
-                    IMOBILIZADO
-                </label>
+                @foreach([
+                    'IMOBILIZADO',
+                    'INSUMOS PARA PRODUÇÃO',
+                    'MATERIAL DE MANUTENÇÃO'
+                ] as $g)
 
                 <label>
-                    <input type="checkbox" name="grupo[]" value="INSUMOS PARA PRODUÇÃO" {{ in_array('INSUMOS PARA PRODUÇÃO', request()->input('grupo', [])) ? 'checked' : '' }}>
-                    INSUMOS PARA PRODUÇÃO
+                    <input type="checkbox" name="grupo[]" value="{{ $g }}"
+                    {{ in_array($g, $grupo ?? []) ? 'checked' : '' }}>
+                    {{ $g }}
                 </label>
 
-                <label>
-                    <input type="checkbox" name="grupo[]" value="MATERIAL DE MANUTENÇÃO" {{ in_array('MATERIAL DE MANUTENÇÃO', request()->input('grupo', [])) ? 'checked' : '' }}>
-                    MATERIAL DE MANUTENÇÃO
-                </label>
+                @endforeach
 
             </div>
 
+
+            {{-- =====================
+            SUBGRUPO
+            ===================== --}}
 
             <div class="filtro-box scroll">
 
                 <b>Sub Grupo</b>
 
-                <label>
-                    <input type="checkbox" name="subgrupo[]" value="MANUTENÇÃO DE MÁQUINAS" {{ in_array('MANUTENÇÃO DE MÁQUINAS', request()->input('subgrupo', [])) ? 'checked' : '' }}>
-                    MANUTENÇÃO DE MÁQUINAS
-                </label>
+                @foreach([
+                    'MANUTENÇÃO DE MÁQUINAS',
+                    'MANUTENÇÃO DE PROCESSO',
+                    'MANUTENÇÃO PREDIAL',
+                    'MANUTENÇÃO VEICULO'
+                ] as $sg)
 
                 <label>
-                    <input type="checkbox" name="subgrupo[]" value="MANUTENÇÃO DE PROCESSO" {{ in_array('MANUTENÇÃO DE PROCESSO', request()->input('subgrupo', [])) ? 'checked' : '' }}>
-                    MANUTENÇÃO DE PROCESSO
+                    <input type="checkbox" name="subgrupo[]" value="{{ $sg }}"
+                    {{ in_array($sg, $subgrupo ?? []) ? 'checked' : '' }}>
+                    {{ $sg }}
                 </label>
 
-                <label>
-                    <input type="checkbox" name="subgrupo[]" value="MANUTENÇÃO PREDIAL" {{ in_array('MANUTENÇÃO PREDIAL', request()->input('subgrupo', [])) ? 'checked' : '' }}>
-                    MANUTENÇÃO PREDIAL
-                </label>
-
-                <label>
-                    <input type="checkbox" name="subgrupo[]" value="MANUTENÇÃO VEICULO" {{ in_array('MANUTENÇÃO VEICULO', request()->input('subgrupo', [])) ? 'checked' : '' }}>
-                    MANUTENÇÃO VEICULO
-                </label>
+                @endforeach
 
             </div>
 
+
+            {{-- =====================
+            DEPOSITO
+            ===================== --}}
 
             <div class="filtro-box">
 
                 <b>Depósito</b>
 
-                <label>
-                    <input type="checkbox" name="deposito[]" value="142" {{ in_array('142', request()->input('deposito', [])) ? 'checked' : '' }}>
-                    142
-                </label>
+                @foreach(['142','143'] as $d)
 
                 <label>
-                    <input type="checkbox" name="deposito[]" value="143" {{ in_array('143', request()->input('deposito', [])) ? 'checked' : '' }}>
-                    143
+                    <input type="checkbox" name="deposito[]" value="{{ $d }}"
+                    {{ in_array($d, $deposito ?? []) ? 'checked' : '' }}>
+                    {{ $d }}
                 </label>
+
+                @endforeach
 
             </div>
 
 
+            {{-- =====================
+            BOTÕES
+            ===================== --}}
+
             <div class="filtro-botoes">
 
-                <button type="submit" class="btn-filtrar">Filtrar</button>
+                <button type="submit" class="btn-filtrar">
+                    Filtrar
+                </button>
 
-                <a href="{{ url()->current() }}" class="btn-limpar">Limpar</a>
+                <a href="{{ url()->current() }}" class="btn-limpar">
+                    Limpar
+                </a>
 
             </div>
 
         </form>
 
 
+
+        {{-- =====================
+        CONTEUDO
+        ===================== --}}
+
         <div class="conteudo">
+
+
+            {{-- =====================
+            GRAFICO
+            ===================== --}}
 
             <div class="grafico-box">
 
@@ -176,6 +193,11 @@
             </div>
 
 
+
+            {{-- =====================
+            TABELA
+            ===================== --}}
+
             <div class="tabela-box">
 
                 <h3>Top itens comprados</h3>
@@ -183,26 +205,40 @@
                 <table>
 
                     <thead>
+
                         <tr>
                             <th>Item</th>
                             <th>Total</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
 
-                        @foreach($top as $t)
+                        @forelse($top as $t)
 
-                            <tr>
-                                <td>{{ $t->descr_item }}</td>
-                                <td class="valor">{{ number_format($t->total, 2, ',', '.') }}</td>
-                            </tr>
+                        <tr>
+                            <td>{{ $t->descr_item }}</td>
 
-                        @endforeach
+                            <td class="valor">
+                                {{ number_format($t->total,2,',','.') }}
+                            </td>
+                        </tr>
+
+                        @empty
+
+                        <tr>
+                            <td colspan="2" style="text-align:center">
+                                Nenhum resultado encontrado
+                            </td>
+                        </tr>
+
+                        @endforelse
 
                     </tbody>
 
                 </table>
+
 
                 <div class="paginacao">
 
@@ -211,6 +247,7 @@
                 </div>
 
             </div>
+
 
         </div>
 
@@ -221,38 +258,49 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
 <script>
 
-    const labels = [
-        @foreach($grafico as $g)
-            "{{ $g->ano_mes }}",
-        @endforeach
-];
+const labels = @json($grafico->pluck('ano_mes'));
+const valores = @json($grafico->pluck('valor_compra'));
 
-    const valores = [
-        @foreach($grafico as $g)
-            {{ $g->valor_compra }},
-        @endforeach
-];
+new Chart(
+    document.getElementById('graficoCompras'),
+    {
+        type: 'bar',
 
-    new Chart(
-        document.getElementById('graficoCompras'),
-        {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
+        data: {
+
+            labels: labels,
+
+            datasets: [
+                {
                     label: 'Compras por mês',
                     data: valores,
                     backgroundColor: '#2f5597',
                     borderRadius: 4
-                }]
+                }
+            ]
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: { display:false }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
-        });
+
+        }
+
+    }
+)
+
 </script>

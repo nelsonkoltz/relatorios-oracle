@@ -18,14 +18,19 @@ body {
     color: #2f5597;
 }
 
+/* LAYOUT */
+
 .container {
     display: flex;
     gap: 24px;
     align-items: flex-start;
 }
 
+/* FILTROS */
+
 .filtros {
     width: 260px;
+    min-width: 240px;
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -56,10 +61,14 @@ body {
     cursor: pointer;
 }
 
+/* SCROLL FILTROS */
+
 .scroll {
     max-height: 160px;
     overflow-y: auto;
 }
+
+/* BOTÕES */
 
 .filtro-botoes {
     margin-top: 16px;
@@ -97,9 +106,14 @@ body {
     background: #c0392b;
 }
 
+/* CONTEUDO */
+
 .conteudo {
     flex: 1;
+    min-width: 0;
 }
+
+/* GRAFICO */
 
 .grafico-box {
     background: white;
@@ -114,17 +128,21 @@ body {
     position: relative;
 }
 
+/* TABELA */
+
 .tabela-box {
     background: white;
     padding: 22px;
     border-radius: 10px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 12px;
+    min-width: 400px;
 }
 
 thead th {
@@ -154,60 +172,96 @@ tbody tr:hover {
     font-weight: 600;
 }
 
+/* PAGINAÇÃO */
+
 .paginacao {
-    margin-top: 15px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
 }
 
-/* PAGINAÇÃO */
-
-.paginacao{
-margin-top:20px;
-display:flex;
-justify-content:center;
-}
-
-.pagination{
-display:flex;
-gap:6px;
-list-style:none;
-padding:0;
-margin:0;
+.pagination {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .pagination li a,
-.pagination li span{
+.pagination li span {
+    display: block;
+    padding: 8px 12px;
+    background: #f5f7ff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2f5597;
+    transition: 0.2s;
+}
 
-display:block;
+.pagination li a:hover {
+    background: #dfe6ff;
+}
 
-padding:8px 12px;
+.pagination li.active span {
+    background: #2f5597;
+    color: white;
+}
 
-background:#f5f7ff;
+.pagination li.disabled span {
+    opacity: 0.4;
+}
 
-border-radius:6px;
+/* ========================= */
+/* RESPONSIVIDADE */
+/* ========================= */
 
-text-decoration:none;
+/* TABLET */
 
-font-size:13px;
+@media (max-width: 1000px) {
 
-font-weight:500;
+    body {
+        padding: 20px;
+    }
 
-color:#2f5597;
+    .container {
+        flex-direction: column;
+    }
 
-transition:0.2s;
+    .filtros {
+        width: 100%;
+    }
+
+    .conteudo {
+        width: 100%;
+    }
 
 }
 
-.pagination li a:hover{
-background:#dfe6ff;
-}
+/* CELULAR */
 
-.pagination li.active span{
-background:#2f5597;
-color:white;
-}
+@media (max-width: 600px) {
 
-.pagination li.disabled span{
-opacity:0.4;
+    body {
+        padding: 15px;
+    }
+
+    .grafico-wrapper {
+        height: 220px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    thead th {
+        font-size: 12px;
+    }
+
+    tbody td {
+        font-size: 12px;
+    }
+
 }
