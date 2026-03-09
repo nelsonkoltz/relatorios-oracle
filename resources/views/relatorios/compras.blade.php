@@ -10,21 +10,20 @@
 
             <h3 class="filtro-titulo">Filtros</h3>
 
+
             {{-- =====================
             TIPO ITEM
             ===================== --}}
-
             <div class="filtro-box">
 
                 <b>Tipo Item</b>
 
-                @foreach(['5','6','9','10'] as $item)
+                @foreach($lista_tipo_item as $i)
 
-                <label>
-                    <input type="checkbox" name="tipo_item[]" value="{{ $item }}"
-                    {{ in_array($item, $tipo_item ?? []) ? 'checked' : '' }}>
-                    {{ $item }}
-                </label>
+                    <label>
+                        <input type="checkbox" name="tipo_item[]" value="{{ $i }}" {{ in_array($i, $tipo_item ?? []) ? 'checked' : '' }}>
+                        {{ $i }}
+                    </label>
 
                 @endforeach
 
@@ -34,18 +33,16 @@
             {{-- =====================
             FILIAL
             ===================== --}}
-
             <div class="filtro-box">
 
                 <b>Filial</b>
 
-                @foreach(['1','2'] as $f)
+                @foreach($lista_filial as $f)
 
-                <label>
-                    <input type="checkbox" name="filial[]" value="{{ $f }}"
-                    {{ in_array($f, $filial ?? []) ? 'checked' : '' }}>
-                    {{ $f }}
-                </label>
+                    <label>
+                        <input type="checkbox" name="filial[]" value="{{ $f }}" {{ in_array($f, $filial ?? []) ? 'checked' : '' }}>
+                        {{ $f }}
+                    </label>
 
                 @endforeach
 
@@ -55,24 +52,16 @@
             {{-- =====================
             SETOR
             ===================== --}}
-
             <div class="filtro-box scroll">
 
                 <b>Setor</b>
 
-                @foreach([
-                    'ADMINISTRACAO',
-                    'FIACAO CN',
-                    'FIACAO NT',
-                    'MALHARIA',
-                    'TINTURARIA'
-                ] as $s)
+                @foreach($lista_setor as $s)
 
-                <label>
-                    <input type="checkbox" name="setor[]" value="{{ $s }}"
-                    {{ in_array($s, $setor ?? []) ? 'checked' : '' }}>
-                    {{ $s }}
-                </label>
+                    <label>
+                        <input type="checkbox" name="setor[]" value="{{ $s }}" {{ in_array($s, $setor ?? []) ? 'checked' : '' }}>
+                        {{ $s }}
+                    </label>
 
                 @endforeach
 
@@ -82,22 +71,16 @@
             {{-- =====================
             GRUPO
             ===================== --}}
-
             <div class="filtro-box scroll">
 
                 <b>Grupo</b>
 
-                @foreach([
-                    'IMOBILIZADO',
-                    'INSUMOS PARA PRODUÇÃO',
-                    'MATERIAL DE MANUTENÇÃO'
-                ] as $g)
+                @foreach($lista_grupo as $g)
 
-                <label>
-                    <input type="checkbox" name="grupo[]" value="{{ $g }}"
-                    {{ in_array($g, $grupo ?? []) ? 'checked' : '' }}>
-                    {{ $g }}
-                </label>
+                    <label>
+                        <input type="checkbox" name="grupo[]" value="{{ $g }}" {{ in_array($g, $grupo ?? []) ? 'checked' : '' }}>
+                        {{ $g }}
+                    </label>
 
                 @endforeach
 
@@ -107,23 +90,16 @@
             {{-- =====================
             SUBGRUPO
             ===================== --}}
-
             <div class="filtro-box scroll">
 
                 <b>Sub Grupo</b>
 
-                @foreach([
-                    'MANUTENÇÃO DE MÁQUINAS',
-                    'MANUTENÇÃO DE PROCESSO',
-                    'MANUTENÇÃO PREDIAL',
-                    'MANUTENÇÃO VEICULO'
-                ] as $sg)
+                @foreach($lista_subgrupo as $sg)
 
-                <label>
-                    <input type="checkbox" name="subgrupo[]" value="{{ $sg }}"
-                    {{ in_array($sg, $subgrupo ?? []) ? 'checked' : '' }}>
-                    {{ $sg }}
-                </label>
+                    <label>
+                        <input type="checkbox" name="subgrupo[]" value="{{ $sg }}" {{ in_array($sg, $subgrupo ?? []) ? 'checked' : '' }}>
+                        {{ $sg }}
+                    </label>
 
                 @endforeach
 
@@ -133,18 +109,16 @@
             {{-- =====================
             DEPOSITO
             ===================== --}}
-
-            <div class="filtro-box">
+            <div class="filtro-box scroll">
 
                 <b>Depósito</b>
 
-                @foreach(['142','143'] as $d)
+                @foreach($lista_deposito as $d)
 
-                <label>
-                    <input type="checkbox" name="deposito[]" value="{{ $d }}"
-                    {{ in_array($d, $deposito ?? []) ? 'checked' : '' }}>
-                    {{ $d }}
-                </label>
+                    <label>
+                        <input type="checkbox" name="deposito[]" value="{{ $d }}" {{ in_array($d, $deposito ?? []) ? 'checked' : '' }}>
+                        {{ $d }}
+                    </label>
 
                 @endforeach
 
@@ -154,7 +128,6 @@
             {{-- =====================
             BOTÕES
             ===================== --}}
-
             <div class="filtro-botoes">
 
                 <button type="submit" class="btn-filtrar">
@@ -174,14 +147,12 @@
         {{-- =====================
         CONTEUDO
         ===================== --}}
-
         <div class="conteudo">
 
 
             {{-- =====================
             GRAFICO
             ===================== --}}
-
             <div class="grafico-box">
 
                 <h3>Compras últimos 12 meses</h3>
@@ -197,7 +168,6 @@
             {{-- =====================
             TABELA
             ===================== --}}
-
             <div class="tabela-box">
 
                 <h3>Top itens comprados</h3>
@@ -217,21 +187,25 @@
 
                         @forelse($top as $t)
 
-                        <tr>
-                            <td>{{ $t->descr_item }}</td>
+                            <tr>
 
-                            <td class="valor">
-                                {{ number_format($t->total,2,',','.') }}
-                            </td>
-                        </tr>
+                                <td>{{ $t->descr_item }}</td>
+
+                                <td class="valor">
+                                    {{ number_format($t->total, 2, ',', '.') }}
+                                </td>
+
+                            </tr>
 
                         @empty
 
-                        <tr>
-                            <td colspan="2" style="text-align:center">
-                                Nenhum resultado encontrado
-                            </td>
-                        </tr>
+                            <tr>
+
+                                <td colspan="2" style="text-align:center">
+                                    Nenhum resultado encontrado
+                                </td>
+
+                            </tr>
 
                         @endforelse
 
@@ -256,51 +230,54 @@
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 
-const labels = @json($grafico->pluck('ano_mes'));
-const valores = @json($grafico->pluck('valor_compra'));
+    const labels = @json($grafico->pluck('ano_mes'));
 
-new Chart(
-    document.getElementById('graficoCompras'),
-    {
-        type: 'bar',
+    const valores = @json($grafico->pluck('valor_compra'));
 
-        data: {
+    new Chart(
+        document.getElementById('graficoCompras'),
+        {
 
-            labels: labels,
+            type: 'bar',
 
-            datasets: [
-                {
-                    label: 'Compras por mês',
-                    data: valores,
-                    backgroundColor: '#2f5597',
-                    borderRadius: 4
-                }
-            ]
-        },
+            data: {
 
-        options: {
+                labels: labels,
 
-            responsive: true,
-            maintainAspectRatio: false,
+                datasets: [
+                    {
+                        label: 'Compras por mês',
+                        data: valores,
+                        backgroundColor: '#2f5597',
+                        borderRadius: 4
+                    }
+                ]
 
-            plugins: {
-                legend: { display:false }
             },
 
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: { display: false }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
+
             }
 
         }
-
-    }
-)
+    )
 
 </script>

@@ -18,67 +18,85 @@ class RelatorioController extends Controller
     }
 
 
+    /*
+    =========================
+    FUNÇÃO DE FILTROS
+    =========================
+    */
+
+    private function aplicarFiltros($query, $filtros)
+    {
+
+        $query->when($filtros['tipo_item'], function ($q) use ($filtros) {
+            $q->whereIn('x.TIPO_ITEM', $filtros['tipo_item']);
+        });
+
+        $query->when($filtros['filial'], function ($q) use ($filtros) {
+            $q->whereIn('x.FILIAL', $filtros['filial']);
+        });
+
+        $query->when($filtros['setor'], function ($q) use ($filtros) {
+            $q->whereIn('y.DS_SETOR', $filtros['setor']);
+        });
+
+        $query->when($filtros['grupo'], function ($q) use ($filtros) {
+            $q->whereIn('x.DESCR_GRUPO_INSUMO', $filtros['grupo']);
+        });
+
+        $query->when($filtros['subgrupo'], function ($q) use ($filtros) {
+            $q->whereIn('x.DESCR_SUBGRUPO_INSUMO', $filtros['subgrupo']);
+        });
+
+        $query->when($filtros['deposito'], function ($q) use ($filtros) {
+            $q->whereIn('x.DEPOSITO', $filtros['deposito']);
+        });
+
+        if (isset($filtros['item'])) {
+            $query->when($filtros['item'], function ($q) use ($filtros) {
+                $q->whereIn('x.DESCR_ITEM', $filtros['item']);
+            });
+        }
+
+        return $query;
+    }
+
+
+    /*
+    =========================
+    RELATORIO COMPRAS
+    =========================
+    */
+
     public function compras(Request $request)
     {
 
-        /*
-        =====================
-        FILTROS
-        =====================
-        */
+        $filtrosSelecionados = [
 
-        $tipo_item = array_filter(Arr::wrap($request->tipo_item));
-        $filial = array_filter(Arr::wrap($request->filial));
-        $setor = array_filter(Arr::wrap($request->setor));
-        $grupo = array_filter(Arr::wrap($request->grupo));
-        $subgrupo = array_filter(Arr::wrap($request->subgrupo));
-        $deposito = array_filter(Arr::wrap($request->deposito));
+            'tipo_item' => array_filter(Arr::wrap($request->tipo_item)),
+            'filial' => array_filter(Arr::wrap($request->filial)),
+            'setor' => array_filter(Arr::wrap($request->setor)),
+            'grupo' => array_filter(Arr::wrap($request->grupo)),
+            'subgrupo' => array_filter(Arr::wrap($request->subgrupo)),
+            'deposito' => array_filter(Arr::wrap($request->deposito)),
+
+        ];
 
 
         /*
-        =====================
-        BASE QUERY (SERVICE)
-        =====================
+        =========================
+        BASE QUERY
+        =========================
         */
 
         $base = $this->relatorio->baseQuery();
 
-
-        /*
-        =====================
-        APLICAR FILTROS
-        =====================
-        */
-
-        $base->when($tipo_item, function ($q) use ($tipo_item) {
-            $q->whereIn('x.TIPO_ITEM', $tipo_item);
-        });
-
-        $base->when($filial, function ($q) use ($filial) {
-            $q->whereIn('x.FILIAL', $filial);
-        });
-
-        $base->when($setor, function ($q) use ($setor) {
-            $q->whereIn('y.DS_SETOR', $setor);
-        });
-
-        $base->when($grupo, function ($q) use ($grupo) {
-            $q->whereIn('x.DESCR_GRUPO_INSUMO', $grupo);
-        });
-
-        $base->when($subgrupo, function ($q) use ($subgrupo) {
-            $q->whereIn('x.DESCR_SUBGRUPO_INSUMO', $subgrupo);
-        });
-
-        $base->when($deposito, function ($q) use ($deposito) {
-            $q->whereIn('x.DEPOSITO', $deposito);
-        });
+        $this->aplicarFiltros($base, $filtrosSelecionados);
 
 
         /*
-        =====================
+        =========================
         GRAFICO
-        =====================
+        =========================
         */
 
         $grafico = (clone $base)
@@ -89,16 +107,14 @@ class RelatorioController extends Controller
             )
 
             ->groupBy('x.ANO_MES')
-
             ->orderBy('x.ANO_MES')
-
             ->get();
 
 
         /*
-        =====================
+        =========================
         TOP ITENS
-        =====================
+        =========================
         */
 
         $top = (clone $base)
@@ -109,110 +125,73 @@ class RelatorioController extends Controller
             )
 
             ->groupBy('x.DESCR_ITEM')
-
             ->orderByDesc('TOTAL')
-
             ->paginate(10)
-
             ->withQueryString();
 
 
         /*
-        =====================
+        =========================
         FILTROS DINAMICOS
-        =====================
+        =========================
         */
 
         $filtros = $this->relatorio->filtros();
 
 
-        /*
-        =====================
-        RETORNO
-        =====================
-        */
-
         return view('relatorios.compras', array_merge(
 
             $filtros,
 
+            $filtrosSelecionados,
+
             compact(
                 'grafico',
-                'top',
-                'tipo_item',
-                'filial',
-                'setor',
-                'grupo',
-                'subgrupo',
-                'deposito'
+                'top'
             )
 
         ));
-
     }
 
 
 
+    /*
+    =========================
+    RELATORIO ESTOQUE FINAL
+    =========================
+    */
+
     public function estoqueFinal(Request $request)
     {
 
-        $tipo_item = array_filter(Arr::wrap($request->tipo_item));
-        $filial = array_filter(Arr::wrap($request->filial));
-        $setor = array_filter(Arr::wrap($request->setor));
-        $grupo = array_filter(Arr::wrap($request->grupo));
-        $subgrupo = array_filter(Arr::wrap($request->subgrupo));
-        $deposito = array_filter(Arr::wrap($request->deposito));
-        $item = array_filter(Arr::wrap($request->item));
+        $filtrosSelecionados = [
+
+            'tipo_item' => array_filter(Arr::wrap($request->tipo_item)),
+            'filial' => array_filter(Arr::wrap($request->filial)),
+            'setor' => array_filter(Arr::wrap($request->setor)),
+            'grupo' => array_filter(Arr::wrap($request->grupo)),
+            'subgrupo' => array_filter(Arr::wrap($request->subgrupo)),
+            'deposito' => array_filter(Arr::wrap($request->deposito)),
+            'item' => array_filter(Arr::wrap($request->item)),
+
+        ];
 
 
         /*
-        ========================
-        BASE QUERY (SERVICE)
-        ========================
+        =========================
+        BASE QUERY
+        =========================
         */
 
         $base = $this->relatorio->baseQuery();
 
-
-        /*
-        ========================
-        APLICAR FILTROS
-        ========================
-        */
-
-        $base->when($tipo_item, function ($q) use ($tipo_item) {
-            $q->whereIn('x.TIPO_ITEM', $tipo_item);
-        });
-
-        $base->when($filial, function ($q) use ($filial) {
-            $q->whereIn('x.FILIAL', $filial);
-        });
-
-        $base->when($setor, function ($q) use ($setor) {
-            $q->whereIn('y.DS_SETOR', $setor);
-        });
-
-        $base->when($grupo, function ($q) use ($grupo) {
-            $q->whereIn('x.DESCR_GRUPO_INSUMO', $grupo);
-        });
-
-        $base->when($subgrupo, function ($q) use ($subgrupo) {
-            $q->whereIn('x.DESCR_SUBGRUPO_INSUMO', $subgrupo);
-        });
-
-        $base->when($deposito, function ($q) use ($deposito) {
-            $q->whereIn('x.DEPOSITO', $deposito);
-        });
-
-        $base->when($item, function ($q) use ($item) {
-            $q->whereIn('x.DESCR_ITEM', $item);
-        });
+        $this->aplicarFiltros($base, $filtrosSelecionados);
 
 
         /*
-        ========================
+        =========================
         GRAFICO
-        ========================
+        =========================
         */
 
         $grafico = (clone $base)
@@ -228,9 +207,9 @@ class RelatorioController extends Controller
 
 
         /*
-        ========================
-        SUBQUERY AGRUPADA
-        ========================
+        =========================
+        AGRUPAMENTO
+        =========================
         */
 
         $agrupado = (clone $base)
@@ -238,7 +217,7 @@ class RelatorioController extends Controller
             ->select(
                 'x.DESCR_ITEM',
                 'x.ANO_MES',
-                DB::raw('SUM(x.VALOR_COMPRA) as TOTAL')
+                DB::raw('SUM(x.VALOR_ATUAL) as TOTAL')
             )
 
             ->groupBy(
@@ -261,9 +240,9 @@ class RelatorioController extends Controller
 
 
         /*
-        ========================
+        =========================
         FILTROS DINAMICOS
-        ========================
+        =========================
         */
 
         $filtros = $this->relatorio->filtros();
@@ -273,19 +252,13 @@ class RelatorioController extends Controller
 
             $filtros,
 
+            $filtrosSelecionados,
+
             compact(
                 'grafico',
-                'tabela',
-                'tipo_item',
-                'filial',
-                'setor',
-                'grupo',
-                'subgrupo',
-                'deposito'
+                'tabela'
             )
 
         ));
-
     }
-
 }
