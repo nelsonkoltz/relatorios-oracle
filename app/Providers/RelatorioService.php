@@ -16,49 +16,69 @@ class RelatorioService
 
     public function filtros()
     {
+        return Cache::remember('relatorio_filtros', 3600, function () {
 
-        $dados = DB::connection('oracle')
+            $base = DB::connection('oracle')
+                ->table('VW_PI_CCSTC02_FECH_ITEM as x')
+                ->leftJoin('tcli_deposito_setor as d', 'd.cd_deposito', '=', 'x.DEPOSITO')
+                ->leftJoin('vw_f7_setor_custo as y', 'y.cd_setor_custo', '=', 'd.cd_setor_custo')
+                ->whereRaw("x.ANO_MES >= TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),-12),'YYYYMM')");
 
-            ->table('VW_PI_CCSTC02_FECH_ITEM as x')
+            return [
 
-            ->leftJoin('tcli_deposito_setor as d', 'd.cd_deposito', '=', 'x.DEPOSITO')
+                'lista_ano_mes' => (clone $base)
+                    ->select('x.ANO_MES as ano_mes')
+                    ->distinct()
+                    ->orderByDesc('ano_mes')
+                    ->pluck('ano_mes'),
 
-            ->leftJoin('vw_f7_setor_custo as y', 'y.cd_setor_custo', '=', 'd.cd_setor_custo')
+                'lista_tipo_item' => (clone $base)
+                    ->select('x.TIPO_ITEM as tipo_item')
+                    ->distinct()
+                    ->orderBy('tipo_item')
+                    ->pluck('tipo_item'),
 
-            ->select(
-                'x.TIPO_ITEM',
-                'x.FILIAL',
-                'y.DS_SETOR',
-                'x.DESCR_GRUPO_INSUMO',
-                'x.DESCR_SUBGRUPO_INSUMO',
-                'x.DEPOSITO',
-                'x.DESCR_ITEM'
-            )
+                'lista_filial' => (clone $base)
+                    ->select('x.FILIAL as filial')
+                    ->distinct()
+                    ->orderBy('x.FILIAL')
+                    ->pluck('filial'),
 
-            ->distinct()
+                'lista_setor' => (clone $base)
+                    ->select('y.DS_SETOR as ds_setor')
+                    ->whereNotNull('y.DS_SETOR')
+                    ->distinct()
+                    ->orderBy('y.DS_SETOR')
+                    ->pluck('ds_setor'),
 
-            ->get();
+                'lista_grupo' => (clone $base)
+                    ->select('x.DESCR_GRUPO_INSUMO as descr_grupo_insumo')
+                    ->distinct()
+                    ->orderBy('x.DESCR_GRUPO_INSUMO')
+                    ->pluck('descr_grupo_insumo'),
 
+                'lista_subgrupo' => (clone $base)
+                    ->select('x.DESCR_SUBGRUPO_INSUMO as descr_subgrupo_insumo')
+                    ->distinct()
+                    ->orderBy('x.DESCR_SUBGRUPO_INSUMO')
+                    ->pluck('descr_subgrupo_insumo'),
 
-        return [
+                'lista_deposito' => (clone $base)
+                    ->select('x.DEPOSITO as deposito')
+                    ->distinct()
+                    ->orderBy('x.DEPOSITO')
+                    ->pluck('deposito'),
 
-            'lista_tipo_item' => $dados->pluck('tipo_item')->unique()->sort()->values(),
+                'lista_item' => (clone $base)
+                    ->select('x.DESCR_ITEM as descr_item')
+                    ->distinct()
+                    ->orderBy('x.DESCR_ITEM')
+                    ->pluck('descr_item'),
 
-            'lista_filial' => $dados->pluck('filial')->unique()->sort()->values(),
-
-            'lista_setor' => $dados->pluck('ds_setor')->unique()->sort()->values(),
-
-            'lista_grupo' => $dados->pluck('descr_grupo_insumo')->unique()->sort()->values(),
-
-            'lista_subgrupo' => $dados->pluck('descr_subgrupo_insumo')->unique()->sort()->values(),
-
-            'lista_deposito' => $dados->pluck('deposito')->unique()->sort()->values(),
-
-            'lista_item' => $dados->pluck('descr_item')->unique()->sort()->values(),
-
-        ];
-
+            ];
+        });
     }
+
 
     /*
     =========================
@@ -70,32 +90,12 @@ class RelatorioService
     {
 
         return DB::connection('oracle')
-
             ->table('VW_PI_CCSTC02_FECH_ITEM as x')
 
             ->leftJoin('tcli_deposito_setor as d', 'd.cd_deposito', '=', 'x.DEPOSITO')
 
             ->leftJoin('vw_f7_setor_custo as y', 'y.cd_setor_custo', '=', 'd.cd_setor_custo')
 
-            ->select(
-                'x.ANO_MES',
-                'x.TIPO_ITEM',
-                'x.FILIAL',
-                'x.DESCR_ITEM',
-                'x.DESCR_GRUPO_INSUMO',
-                'x.DESCR_SUBGRUPO_INSUMO',
-                'x.DEPOSITO',
-                'x.VALOR_COMPRA',
-                'x.VALOR_ATUAL',
-                'y.DS_SETOR'
-            )
-
-            /*
-            LIMITA CONSULTA A 12 MESES
-            */
-
             ->whereRaw("x.ANO_MES >= TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),-12),'YYYYMM')");
-
     }
-
 }

@@ -405,54 +405,123 @@ class RelatorioController extends Controller
     public function fechamento(Request $request)
     {
 
-        $base = $this->relatorio->baseQuery();
+        ini_set('memory_limit', '512M');
 
         /*
-        FILTRO MÊS
+        =========================
+        CARREGA FILTROS
+        =========================
+        */
+
+        $filtros = $this->relatorio->filtros();
+
+
+        /*
+        =========================
+        BASE QUERY
+        =========================
+        */
+
+        $base = $this->relatorio->baseQuery();
+
+
+        /*
+        =========================
+        APLICA FILTROS
+        =========================
         */
 
         if ($request->ano_mes) {
-            $base->where('x.ANO_MES', $request->ano_mes);
+            $base->whereIn('x.ANO_MES', (array) $request->ano_mes);
         }
 
+        if ($request->tipo_item) {
+            $base->whereIn('x.TIPO_ITEM', (array) $request->tipo_item);
+        }
+
+        if ($request->grupo) {
+            $base->whereIn('x.DESCR_GRUPO_INSUMO', (array) $request->grupo);
+        }
+
+        if ($request->deposito) {
+            $base->whereIn('x.DEPOSITO', (array) $request->deposito);
+        }
+
+
         /*
-        CONSULTA
+        =========================
+        DADOS DO RELATÓRIO
+        =========================
         */
 
         $dados = (clone $base)
 
             ->select(
-                'y.DS_SETOR',
 
-                DB::raw('SUM(x.VALOR_COMPRA) as VALOR_COMPRA'),
-                DB::raw('SUM(x.VALOR_ATUAL) as VALOR_ATUAL')
+                'y.DS_SETOR as ds_setor',
+
+                DB::raw('SUM(x.VALOR_ANTERIOR) valor_anterior'),
+                DB::raw('SUM(x.VALOR_COMPRA) valor_compra'),
+                DB::raw('SUM(x.VALOR_PRODUCAO) valor_producao'),
+                DB::raw('SUM(x.VALOR_ENTRADA_OUTROS) valor_entrada_outros'),
+                DB::raw('SUM(x.VALOR_ENTRADA_TRANSFERENCIA) valor_entrada_transferencia'),
+                DB::raw('SUM(x.VALOR_SAIDA_TRANSFERENCIA) valor_saida_transferencia'),
+                DB::raw('SUM(x.VALOR_SAIDA_OUTROS) valor_saida_outros'),
+                DB::raw('SUM(x.VALOR_VENDA) valor_venda'),
+                DB::raw('SUM(x.VALOR_CONSUMO) valor_consumo'),
+                DB::raw('SUM(x.VALOR_ATUAL) valor_atual')
 
             )
 
+            ->whereNotNull('y.DS_SETOR')
+
             ->groupBy('y.DS_SETOR')
 
-            ->orderBy('y.DS_SETOR')
+            ->orderByRaw("
+            CASE
+                WHEN y.DS_SETOR = 'ADMINISTRACAO' THEN 1
+                WHEN y.DS_SETOR = 'FIACAO NT' THEN 2
+                WHEN y.DS_SETOR = 'MALHARIA' THEN 3
+                WHEN y.DS_SETOR = 'TINTURARIA' THEN 4
+                WHEN y.DS_SETOR = 'FIACAO CN' THEN 5
+                ELSE 99
+            END
+        ")
 
             ->get();
 
 
         /*
-        CAMPOS DA TELA
+        =========================
+        LINHAS DA TABELA
+        =========================
         */
 
         $linhas = [
 
-            'VALOR_COMPRA' => 'Compras',
-            'VALOR_ATUAL' => 'Estoque Atual',
+            'valor_anterior' => 'Soma de VALOR_ANTERIOR',
+            'valor_compra' => 'Soma de VALOR_COMPRA',
+            'valor_producao' => 'Soma de VALOR_PRODUCAO',
+            'valor_entrada_outros' => 'Soma de VALOR_ENTRADA_OUTROS',
+            'valor_entrada_transferencia' => 'Soma de VALOR_ENTRADA_TRANSFERENCIA',
+            'valor_saida_transferencia' => 'Soma de VALOR_SAIDA_TRANSFERENCIA',
+            'valor_saida_outros' => 'Soma de VALOR_SAIDA_OUTROS',
+            'valor_venda' => 'Soma de VALOR_VENDA',
+            'valor_consumo' => 'Soma de VALOR_CONSUMO',
+            'valor_atual' => 'Soma de VALOR_ATUAL'
 
         ];
 
 
-        return view('relatorios.fechamento', compact(
+        /*
+        =========================
+        ENVIA PARA VIEW
+        =========================
+        */
 
-            'dados',
-            'linhas'
-
-        ));
+        return view(
+            'relatorios.fechamento',
+            compact('dados', 'linhas', 'filtros')
+        );
     }
 }

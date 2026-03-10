@@ -1,53 +1,110 @@
-.page {
-    max-width: 1400px;
-    margin: auto;
+/* =============================
+TABELA FECHAMENTO
+============================= */
+
+.tabela-fechamento-box{
+    background:white;
+    padding:22px;
+    border-radius:10px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.06);
+    overflow:auto;
 }
 
-h2 {
-    margin-bottom: 20px;
+.tabela-fechamento{
+    width:100%;
+    border-collapse:collapse;
+    min-width:800px;
 }
 
-.filtros {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 10px;
-}
+/* CABEÇALHO */
 
-.tabela {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
+.tabela-fechamento thead th{
 
-.tabela th {
-
-    background: #f3f6fa;
-    padding: 10px;
-    border: 1px solid #ddd;
-    font-size: 13px;
-
-}
-
-.tabela td {
-
-    padding: 8px;
-    border: 1px solid #eee;
-    font-size: 13px;
-    text-align: right;
+    background:#2f5597;
+    color:white;
+    padding:10px;
+    font-size:13px;
+    text-align:center;
+    white-space:nowrap;
 
 }
 
-.titulo {
+/* PRIMEIRA COLUNA */
 
-    text-align: left;
-    font-weight: 600;
-    background: #f7f9fc;
+.tabela-fechamento .titulo{
+
+    text-align:left;
+    font-weight:600;
+    background:#f8f9fc;
+    color:#333;
 
 }
 
-.total {
+/* VALORES */
 
-    font-weight: bold;
-    background: #f0f3f7;
+.tabela-fechamento td{
+
+    padding:9px;
+    border-bottom:1px solid #eee;
+    font-size:13px;
+    text-align:right;
+
+}
+
+/* TOTAL */
+
+.tabela-fechamento .total{
+
+    font-weight:700;
+    background:#eef3ff;
+    color:#2f5597;
+
+}
+
+/* LINHAS ZEBRADAS */
+
+.tabela-fechamento tbody tr:nth-child(even){
+
+    background:#f8f9fc;
+
+}
+
+/* HOVER */
+
+.tabela-fechamento tbody tr:hover{
+
+    background:#eef3ff;
+
+}
+
+/* COLUNA VALORES FIXA */
+
+.tabela-fechamento td:first-child,
+.tabela-fechamento th:first-child{
+
+    position:sticky;
+    left:0;
+    background:white;
+    z-index:2;
+
+}
+
+/* CABEÇALHO FIXO */
+
+.tabela-fechamento thead th{
+
+    position:sticky;
+    top:0;
+    z-index:3;
+
+}
+
+/* RESPONSIVO */
+
+@media (max-width:1000px){
+
+.tabela-fechamento{
+font-size:12px;
+}
 
 }

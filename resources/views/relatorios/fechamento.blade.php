@@ -1,67 +1,171 @@
+<link rel="stylesheet" href="{{ asset('css/compras.css') }}">
 <link rel="stylesheet" href="{{ asset('css/fechamento.css') }}">
 
 <x-menu />
 
 <div class="page">
 
-<h2>Fechamento de Estoque</h2>
+    <div class="container">
 
-<table class="tabela">
+        <!-- FILTROS -->
 
-<thead>
+        <form method="GET" class="filtros">
 
-<tr>
+            <h3 class="filtro-titulo">Filtros</h3>
 
-<th>Valores</th>
 
-@foreach($dados as $setor)
+            <div class="filtro-box scroll">
 
-<th>{{ $setor->DS_SETOR }}</th>
+                <b>ANO_MES</b>
 
-@endforeach
+                @foreach($filtros['lista_ano_mes'] as $ano)
 
-<th>Total</th>
+                    <label>
+                        <input type="checkbox" name="ano_mes[]" value="{{ $ano }}" {{ in_array($ano, request('ano_mes', [])) ? 'checked' : '' }}>
+                        {{ $ano }}
+                    </label>
 
-</tr>
+                @endforeach
 
-</thead>
+            </div>
 
-<tbody>
 
-@foreach($linhas as $campo => $titulo)
+            <div class="filtro-box scroll">
 
-<tr>
+                <b>TIPO_ITEM</b>
 
-<td class="titulo">{{ $titulo }}</td>
+                @foreach($filtros['lista_tipo_item'] as $tipo)
 
-@php $total = 0; @endphp
+                    <label>
+                        <input type="checkbox" name="tipo_item[]" value="{{ $tipo }}" {{ in_array($tipo, request('tipo_item', [])) ? 'checked' : '' }}>
+                        {{ $tipo }}
+                    </label>
 
-@foreach($dados as $setor)
+                @endforeach
 
-@php
+            </div>
 
-$valor = $setor->$campo ?? 0;
 
-$total += $valor;
+            <div class="filtro-box scroll">
 
-@endphp
+                <b>GRUPO_INS</b>
 
-<td>{{ number_format($valor,2,',','.') }}</td>
+                @foreach($filtros['lista_grupo'] as $grupo)
 
-@endforeach
+                    <label>
+                        <input type="checkbox" name="grupo[]" value="{{ $grupo }}" {{ in_array($grupo, request('grupo', [])) ? 'checked' : '' }}>
+                        {{ $grupo }}
+                    </label>
 
-<td class="total">
+                @endforeach
 
-{{ number_format($total,2,',','.') }}
+            </div>
 
-</td>
 
-</tr>
+            <div class="filtro-box scroll">
 
-@endforeach
+                <b>DEPOSITO</b>
 
-</tbody>
+                @foreach($filtros['lista_deposito'] as $dep)
 
-</table>
+                    <label>
+                        <input type="checkbox" name="deposito[]" value="{{ $dep }}" {{ in_array($dep, request('deposito', [])) ? 'checked' : '' }}>
+                        {{ $dep }}
+                    </label>
+
+                @endforeach
+
+            </div>
+
+
+            <div class="filtro-botoes">
+
+                <button class="btn-filtrar">
+                    Filtrar
+                </button>
+
+                <a href="{{ route('relatorios.fechamento') }}" class="btn-limpar">
+                    Limpar filtros
+                </a>
+
+            </div>
+
+        </form>
+
+
+        <!-- CONTEUDO -->
+
+        <div class="conteudo">
+
+            <div class="tabela-fechamento-box">
+
+                <table class="tabela-fechamento">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Valores</th>
+
+                            @foreach($dados as $setor)
+                                <th>{{ $setor->ds_setor }}</th>
+                            @endforeach
+
+                            <th>Total Geral</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach($linhas as $campo => $titulo)
+
+                            <tr>
+
+                                <td class="titulo">
+
+                                    {{ $titulo }}
+
+                                </td>
+
+                                @php
+                                    $total = 0;
+                                @endphp
+
+                                @foreach($dados as $setor)
+
+                                    @php
+                                        $valor = (float) ($setor->$campo ?? 0);
+                                        $total += $valor;
+                                    @endphp
+
+                                    <td>
+
+                                        {{ number_format($valor, 2, ',', '.') }}
+
+                                    </td>
+
+                                @endforeach
+
+                                <td class="total">
+
+                                    {{ number_format($total, 2, ',', '.') }}
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
