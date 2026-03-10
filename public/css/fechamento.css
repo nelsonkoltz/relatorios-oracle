@@ -1,0 +1,53 @@
+.page {
+    max-width: 1400px;
+    margin: auto;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.filtros {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.tabela th {
+
+    background: #f3f6fa;
+    padding: 10px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+
+}
+
+.tabela td {
+
+    padding: 8px;
+    border: 1px solid #eee;
+    font-size: 13px;
+    text-align: right;
+
+}
+
+.titulo {
+
+    text-align: left;
+    font-weight: 600;
+    background: #f7f9fc;
+
+}
+
+.total {
+
+    font-weight: bold;
+    background: #f0f3f7;
+
+}

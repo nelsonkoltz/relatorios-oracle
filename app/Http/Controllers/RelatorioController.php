@@ -296,4 +296,163 @@ class RelatorioController extends Controller
 
     }
 
+    public function consumo(Request $request)
+    {
+
+        $filtrosSelecionados = [
+
+            'tipo_item' => array_filter(Arr::wrap($request->tipo_item)),
+            'filial' => array_filter(Arr::wrap($request->filial)),
+            'setor' => array_filter(Arr::wrap($request->setor)),
+            'grupo' => array_filter(Arr::wrap($request->grupo)),
+            'subgrupo' => array_filter(Arr::wrap($request->subgrupo)),
+            'deposito' => array_filter(Arr::wrap($request->deposito)),
+            'item' => array_filter(Arr::wrap($request->item)),
+
+        ];
+
+
+        /*
+        =========================
+        BASE QUERY
+        =========================
+        */
+
+        $base = $this->relatorio->baseQuery();
+
+        $this->aplicarFiltros($base, $filtrosSelecionados);
+
+
+        /*
+        =========================
+        GRAFICO
+        =========================
+        */
+
+        $grafico = (clone $base)
+
+            ->select(
+                'x.ANO_MES',
+                DB::raw('SUM(x.VALOR_CONSUMO) as consumo')
+            )
+
+            ->groupBy('x.ANO_MES')
+            ->orderBy('x.ANO_MES')
+            ->get();
+
+
+        /*
+        =========================
+        AGRUPAMENTO
+        =========================
+        */
+
+        $agrupado = (clone $base)
+
+            ->select(
+                'x.DESCR_ITEM',
+                'x.ANO_MES',
+                DB::raw('SUM(x.VALOR_CONSUMO) as consumo')
+            )
+
+            ->groupBy(
+                'x.DESCR_ITEM',
+                'x.ANO_MES'
+            );
+
+
+        /*
+        =========================
+        TABELA PAGINADA
+        =========================
+        */
+
+        $tabela = DB::connection('oracle')
+
+            ->query()
+
+            ->fromSub($agrupado, 'dados')
+
+            ->orderBy('descr_item')
+
+            ->paginate(20)
+
+            ->withQueryString();
+
+
+        /*
+        =========================
+        FILTROS DINAMICOS
+        =========================
+        */
+
+        $filtros = $this->relatorio->filtros();
+
+
+        return view('relatorios.consumo', array_merge(
+
+            $filtros,
+            $filtrosSelecionados,
+
+            compact(
+                'grafico',
+                'tabela'
+            )
+
+        ));
+    }
+
+    public function fechamento(Request $request)
+    {
+
+        $base = $this->relatorio->baseQuery();
+
+        /*
+        FILTRO MÊS
+        */
+
+        if ($request->ano_mes) {
+            $base->where('x.ANO_MES', $request->ano_mes);
+        }
+
+        /*
+        CONSULTA
+        */
+
+        $dados = (clone $base)
+
+            ->select(
+                'y.DS_SETOR',
+
+                DB::raw('SUM(x.VALOR_COMPRA) as VALOR_COMPRA'),
+                DB::raw('SUM(x.VALOR_ATUAL) as VALOR_ATUAL')
+
+            )
+
+            ->groupBy('y.DS_SETOR')
+
+            ->orderBy('y.DS_SETOR')
+
+            ->get();
+
+
+        /*
+        CAMPOS DA TELA
+        */
+
+        $linhas = [
+
+            'VALOR_COMPRA' => 'Compras',
+            'VALOR_ATUAL' => 'Estoque Atual',
+
+        ];
+
+
+        return view('relatorios.fechamento', compact(
+
+            'dados',
+            'linhas'
+
+        ));
+    }
 }
